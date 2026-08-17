@@ -13,3 +13,6 @@ coverage
 
 *.DS_Store
 .worktrees/
+gui/src-tauri/target/
+gui/node_modules/
+node_modules/

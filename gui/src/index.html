@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Instlux</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Bejelentkezés képernyő -->
+  <section id="login-screen" class="screen">
+    <form id="login-form" class="login-card">
+      <h1>Instlux</h1>
+      <p class="subtitle">natív Instagram kliens</p>
+      <input type="text" id="username" placeholder="felhasználónév" autocomplete="username" required />
+      <input type="password" id="password" placeholder="jelszó" autocomplete="current-password" required />
+      <button type="submit" id="login-btn">Bejelentkezés</button>
+      <p id="login-error" class="error"></p>
+    </form>
+  </section>
+
+  <!-- Fő alkalmazás (bejelentkezés után) -->
+  <section id="app-screen" class="screen hidden">
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <button type="button" class="nav-tab active" data-tab="feed" title="Feed">🏠</button>
+        <button type="button" class="nav-tab" data-tab="chat" title="Üzenetek">💬</button>
+        <button type="button" class="nav-tab" data-tab="settings" title="Beállítások">⚙️</button>
+      </div>
+      <div class="sidebar-bottom">
+        <span id="realtime-dot" class="dot disconnected" title="realtime státusz"></span>
+        <span id="current-user"></span>
+      </div>
+    </aside>
+
+    <div class="app-content">
+      <!-- Feed nézet -->
+      <div id="feed-tab" class="tab-panel active">
+        <div id="stories-bar" class="stories-bar"></div>
+        <div id="feed-posts" class="feed-posts"></div>
+      </div>
+
+      <!-- Chat nézet -->
+      <div id="chat-tab" class="tab-panel">
+        <aside id="thread-list" class="thread-list">
+          <div id="threads" class="threads"></div>
+        </aside>
+
+        <main class="chat-area">
+          <div id="chat-header" class="chat-header">Válassz egy beszélgetést</div>
+          <div id="messages" class="messages"></div>
+          <form id="send-form" class="send-form">
+            <input type="text" id="message-input" placeholder="Írj üzenetet..." autocomplete="off" />
+            <button type="submit">Küldés</button>
+          </form>
+        </main>
+      </div>
+
+      <!-- Beállítások nézet -->
+      <div id="settings-tab" class="tab-panel">
+        <div id="settings-content" class="settings-content">Betöltés...</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Story nézegető (teljes képernyős overlay) -->
+  <div id="story-viewer" class="story-viewer hidden">
+    <div class="story-progress-row" id="story-progress-row"></div>
+    <div class="story-header">
+      <span id="story-username"></span>
+      <button type="button" id="story-close" class="story-close">✕</button>
+    </div>
+    <div class="story-stage" id="story-stage">
+      <div class="story-media" id="story-media"></div>
+      <div class="story-nav-zone story-nav-prev" id="story-prev"></div>
+      <div class="story-nav-zone story-nav-next" id="story-next"></div>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>

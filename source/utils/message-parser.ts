@@ -1,5 +1,6 @@
 import {type DirectThreadFeedResponseItemsItem} from 'instagram-private-api';
 import {MessageSyncMessageTypes, type MessageSyncMessage} from 'instagram_mqtt';
+import {createContextualLogger} from './logger.js';
 import type {
 	Message,
 	Post,
@@ -16,6 +17,8 @@ import type {
  * So I monkey patch,
  * And refactoring will take long.
  */
+
+const logger = createContextualLogger('MessageParser');
 
 // We remove the item_type field to redefine it with proper type discrimination
 type ThreadBaseItem = Omit<DirectThreadFeedResponseItemsItem, 'item_type'>;
@@ -411,8 +414,10 @@ export function parseMessageItem(
 		}
 
 		default: {
+			const rawType = item.item_type as string;
+
 			// clip seems to be a new type that is not documented and is the same as brainrot / reels
-			if ((item.item_type as any) === 'clip') {
+			if (rawType === 'clip' || rawType === 'xma_clip') {
 				return {
 					...baseMessage,
 					itemType: 'placeholder',
@@ -420,10 +425,46 @@ export function parseMessageItem(
 				};
 			}
 
+			// Az Instagram újabb "XMA" (cross-media-attachment) formátumú
+			// üzenetei -- ezeket még nem elemezzük mélyebben (nincs stabil,
+			// dokumentált mezőszerkezetük), de legalább emberi olvasható
+			// szöveget adunk vissza a nyers típusnév helyett, és naplózzuk
+			// a teljes item-et debug szinten, hogy később rendes support-ot
+			// tudjunk hozzá írni.
+			if (rawType === 'xma_link') {
+				logger.debug(`xma_link nyers item: ${JSON.stringify(item)}`);
+				return {
+					...baseMessage,
+					itemType: 'placeholder',
+					text: '[Megosztott link -- még nem támogatott a részletes megjelenítés]',
+				};
+			}
+
+			if (rawType === 'xma_media_share') {
+				logger.debug(`xma_media_share nyers item: ${JSON.stringify(item)}`);
+				return {
+					...baseMessage,
+					itemType: 'placeholder',
+					text: '[Megosztott bejegyzés -- még nem támogatott a részletes megjelenítés]',
+				};
+			}
+
+			if (rawType === 'generic_xma') {
+				logger.debug(`generic_xma nyers item: ${JSON.stringify(item)}`);
+				return {
+					...baseMessage,
+					itemType: 'placeholder',
+					text: '[Megosztott tartalom -- még nem támogatott a részletes megjelenítés]',
+				};
+			}
+
+			logger.debug(
+				`Ismeretlen üzenettípus (${rawType}) nyers item: ${JSON.stringify(item)}`,
+			);
 			return {
 				...baseMessage,
 				itemType: 'placeholder',
-				text: `[Unsupported Type: ${item.item_type}]`,
+				text: `[Unsupported Type: ${rawType}]`,
 			};
 		}
 	}
